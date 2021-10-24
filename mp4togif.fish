@@ -17,7 +17,14 @@ function mp4togif --description "Convert mp4 to gif"
 
     ffmpeg \
       -i $input \
-      -vf "fps=10" \
-      -c:v pam \
-      -f image2pipe - | convert -delay 10 - -layers optimize $output
+      -vf "palettegen=stats_mode=diff" \
+      -y palette.png
+
+    ffmpeg \
+      -i $input \
+      -i palette.png \
+      -lavfi "fps=10,paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle" \
+      -y $output
+
+    rm palette.png
 end
